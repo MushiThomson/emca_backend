@@ -7,7 +7,7 @@ from datetime import datetime
 DATABASE_URL = "postgresql://emcadb_user:qDYPDr2koF6jQnZs0JW8ZQGvKBfc6Dbq@dpg-d07426ali9vc73eu7tb0-a/emcadb"
 
 # ✅ Create Engine
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL)
 
 # ✅ Create Session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
