@@ -89,7 +89,12 @@ class ContactForm(BaseModel):
     name: str
     email: str
     message: str
+# ✅ Admin Create Pydantic Model
+class AdminCreate(BaseModel):
+    username: str
+    password: str
 
+    
 # ✅ Contact Form API
 @app.post("/contact/")
 def save_message(contact: ContactForm, db: Session = Depends(get_db)):
