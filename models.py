@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
 # ✅ Database URL (Using SQLite, change to PostgreSQL if needed)
-DATABASE_URL = "sqlite:///./emca.db"
+DATABASE_URL = "postgresql://emcadb_user:qDYPDr2koF6jQnZs0JW8ZQGvKBfc6Dbq@dpg-d07426ali9vc73eu7tb0-a/emcadb"
 
 # ✅ Create Engine
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
