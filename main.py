@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from models import ContactMessage, Project, Admin, SessionLocal
+from starlette.requests import Request
 
 # ✅ Load environment variables
 from dotenv import load_dotenv
@@ -25,12 +26,6 @@ app = FastAPI()
 def read_root():
     return {"message": "FastAPI on cPanel is working!"}
 
-# This is needed for cPanel Passenger
-if __name__ == "__main__":
-    import os
-    from waitress import serve  # Use Waitress for production server
-    port = int(os.environ.get("PORT", 5000))  # Use environment port or default 5000
-    serve(app, host="0.0.0.0", port=port)
 
 # ✅ Ensure `uploads` directory exists
 UPLOAD_DIR = "uploads"
@@ -151,27 +146,30 @@ class ProjectSchema(BaseModel):
     description: str
     image_url: str
 
-# ✅ Upload and Create Project
 @app.post("/projects/")
 async def create_project(
     title: str = Form(...),
     description: str = Form(...),
     image: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    request: Request = None
 ):
-    # ✅ Validate Image Format
+    # Validate image
     allowed_types = {"image/png", "image/jpeg", "image/jpg"}
     if image.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid image format")
 
-    # ✅ Save File
+    # Save file
     file_location = f"{UPLOAD_DIR}/{image.filename}"
     with open(file_location, "wb") as buffer:
         buffer.write(await image.read())
 
-    image_url = f"http://127.0.0.1:8000/uploads/{image.filename}"
-    new_project = Project(title=title, description=description, image_url=image_url)
+    # Create dynamic URL
+    base_url = str(request.base_url).strip("/")
+    image_url = f"{base_url}/uploads/{image.filename}"
 
+    # Save to database
+    new_project = Project(title=title, description=description, image_url=image_url)
     db.add(new_project)
     db.commit()
     db.refresh(new_project)
